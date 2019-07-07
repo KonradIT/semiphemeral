@@ -1,27 +1,44 @@
 import datetime
-
+import logging
 from .db import Tweet, Thread
 
 
 class Common:
-    def __init__(self, settings, session):
+   def __init__(self, settings, session):
         self.settings = settings
         self.session = session
+        #logging.basicConfig(filename=self.settings.get('log_filename'), filemode='a', level=logging.INFO)
+        self.logger = logging.getLogger("semiphemeral-log")
+        self.logger.setLevel(logging.INFO)
+        handler = logging.FileHandler(self.settings.get('log_filename'))
+        handler.setLevel(logging.INFO)
+        formatter = logging.Formatter(self.settings.get('log_format'))
+        handler.setFormatter(formatter)
+        self.logger.addHandler(handler)
 
-    def get_stats(self):
+   def get_stats(self):
         self.settings.load()
 
         is_configured = self.settings.is_configured()
         last_fetch = self.settings.get('last_fetch')
-        my_tweets = self.session.execute('SELECT COUNT(*) FROM tweets WHERE user_id={} AND is_deleted=0 AND is_retweet=0'.format(int(self.settings.get('user_id')))).first()[0]
-        my_retweets = self.session.execute('SELECT COUNT(*) FROM tweets WHERE user_id={} AND is_deleted=0 AND is_retweet=1'.format(int(self.settings.get('user_id')))).first()[0]
-        my_likes = self.session.execute('SELECT COUNT(*) FROM tweets WHERE favorited=1').first()[0]
-        deleted_tweets = self.session.execute('SELECT COUNT(*) FROM tweets WHERE user_id={} AND is_deleted=1 AND is_retweet=0'.format(int(self.settings.get('user_id')))).first()[0]
-        deleted_retweets = self.session.execute('SELECT COUNT(*) FROM tweets WHERE user_id={} AND is_deleted=1 AND is_retweet=1'.format(int(self.settings.get('user_id')))).first()[0]
-        unliked_tweets = self.session.execute('SELECT COUNT(*) FROM tweets WHERE favorited=1 AND is_unliked=1').first()[0]
-        excluded_tweets = self.session.execute('SELECT COUNT(*) FROM tweets WHERE user_id={} AND exclude_from_delete=1'.format(int(self.settings.get('user_id')))).first()[0]
-        other_tweets = self.session.execute('SELECT COUNT(*) FROM tweets WHERE user_id!={}'.format(int(self.settings.get('user_id')))).first()[0]
-        threads = self.session.execute('SELECT COUNT(*) FROM threads').first()[0]
+        my_tweets = self.session.execute(
+            'SELECT COUNT(*) FROM tweets WHERE user_id={} AND is_deleted=0 AND is_retweet=0'.format(int(self.settings.get('user_id')))).first()[0]
+        my_retweets = self.session.execute(
+            'SELECT COUNT(*) FROM tweets WHERE user_id={} AND is_deleted=0 AND is_retweet=1'.format(int(self.settings.get('user_id')))).first()[0]
+        my_likes = self.session.execute(
+            'SELECT COUNT(*) FROM tweets WHERE favorited=1').first()[0]
+        deleted_tweets = self.session.execute(
+            'SELECT COUNT(*) FROM tweets WHERE user_id={} AND is_deleted=1 AND is_retweet=0'.format(int(self.settings.get('user_id')))).first()[0]
+        deleted_retweets = self.session.execute(
+            'SELECT COUNT(*) FROM tweets WHERE user_id={} AND is_deleted=1 AND is_retweet=1'.format(int(self.settings.get('user_id')))).first()[0]
+        unliked_tweets = self.session.execute(
+            'SELECT COUNT(*) FROM tweets WHERE favorited=1 AND is_unliked=1').first()[0]
+        excluded_tweets = self.session.execute(
+            'SELECT COUNT(*) FROM tweets WHERE user_id={} AND exclude_from_delete=1'.format(int(self.settings.get('user_id')))).first()[0]
+        other_tweets = self.session.execute(
+            'SELECT COUNT(*) FROM tweets WHERE user_id!={}'.format(int(self.settings.get('user_id')))).first()[0]
+        threads = self.session.execute(
+            'SELECT COUNT(*) FROM threads').first()[0]
 
         return {
             'is_configured': is_configured,
@@ -37,14 +54,15 @@ class Common:
             'threads': threads
         }
 
-    def get_tweets_to_delete(self, include_excluded=False):
+   def get_tweets_to_delete(self, include_excluded=False):
         """
         Returns a list of Tweet objects for tweets that should be deleted based
         on criteria in settings. This list includes tweets where exclude_from_delete=True,
         so it's important to manually exclude those before deleting
         """
         self.settings.load()
-        datetime_threshold = datetime.datetime.utcnow() - datetime.timedelta(days=self.settings.get('tweets_days_threshold'))
+        datetime_threshold = datetime.datetime.utcnow(
+        ) - datetime.timedelta(days=self.settings.get('tweets_days_threshold'))
 
         # Select tweets from threads to exclude
         tweets_to_exclude = []
@@ -78,3 +96,7 @@ class Common:
                 tweets_to_delete.append(tweet)
 
         return tweets_to_delete
+
+   def logToFile(self, message):
+        if self.settings.get("logging"):
+            self.logger.info(message)

@@ -22,11 +22,14 @@ class Settings(object):
             'retweets_likes_retweets_threshold': 30,
             'retweets_likes_delete_likes': True,
             'retweets_likes_likes_threshold': 60,
-            #'delete_dms': True,
-            #'dms_days_threshold': 30,
+            # 'delete_dms': True,
+            # 'dms_days_threshold': 30,
             'since_id': None,
-            #'dms_since_id': None,
-            'last_fetch': None
+            # 'dms_since_id': None,
+            'last_fetch': None,
+            'logging': False,
+            'log_filename': '/tmp/semiphemeral.log',
+            'log_format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
         }
         self.load()
 
@@ -53,9 +56,9 @@ class Settings(object):
 
     def is_configured(self):
         if self.get('api_key') == '' or \
-            self.get('api_secret') == '' or \
-            self.get('access_token_key') == '' or \
-            self.get('access_token_secret') == '' or \
-            self.get('username') == '':
+                self.get('api_secret') == '' or \
+                self.get('access_token_key') == '' or \
+                self.get('access_token_secret') == '' or \
+                self.get('username') == '':
             return False
         return True

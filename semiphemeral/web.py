@@ -20,36 +20,57 @@ def create_app(common):
         if request.method == 'POST':
             common.settings.set('api_key', request.form['api_key'])
             common.settings.set('api_secret', request.form['api_secret'])
-            common.settings.set('access_token_key', request.form['access_token_key'])
-            common.settings.set('access_token_secret', request.form['access_token_secret'])
+            common.settings.set('access_token_key',
+                                request.form['access_token_key'])
+            common.settings.set('access_token_secret',
+                                request.form['access_token_secret'])
             common.settings.set('username', request.form['username'])
 
             if 'delete_tweets' in request.form:
-                common.settings.set('delete_tweets', request.form['delete_tweets'] == 'on')
+                common.settings.set(
+                    'delete_tweets', request.form['delete_tweets'] == 'on')
             else:
                 common.settings.set('delete_tweets', False)
-            common.settings.set('tweets_days_threshold', int(request.form['tweets_days_threshold']))
-            common.settings.set('tweets_retweet_threshold', int(request.form['tweets_retweet_threshold']))
-            common.settings.set('tweets_like_threshold', int(request.form['tweets_like_threshold']))
+                
+            if 'log_to_file' in request.form:
+                common.settings.set(
+                    'logging', request.form['log_to_file'] == 'on')
+            else:
+                common.settings.set('logging', False)
+            common.settings.set('log_filename', request.form['log_filename'])
+            common.settings.set('log_format', request.form['log_format'])
+            
+            common.settings.set('tweets_days_threshold', int(
+                request.form['tweets_days_threshold']))
+            common.settings.set('tweets_retweet_threshold', int(
+                request.form['tweets_retweet_threshold']))
+            common.settings.set('tweets_like_threshold', int(
+                request.form['tweets_like_threshold']))
             if 'tweets_threads_threshold' in request.form:
-                common.settings.set('tweets_threads_threshold', request.form['tweets_threads_threshold'] == 'on')
+                common.settings.set(
+                    'tweets_threads_threshold', request.form['tweets_threads_threshold'] == 'on')
             else:
                 common.settings.set('tweets_threads_threshold', False)
 
             if 'retweets_likes' in request.form:
-                common.settings.set('retweets_likes', request.form['retweets_likes'] == 'on')
+                common.settings.set(
+                    'retweets_likes', request.form['retweets_likes'] == 'on')
             else:
                 common.settings.set('retweets_likes', False)
             if 'retweets_likes_delete_retweets' in request.form:
-                common.settings.set('retweets_likes_delete_retweets', request.form['retweets_likes_delete_retweets'] == 'on')
+                common.settings.set('retweets_likes_delete_retweets',
+                                    request.form['retweets_likes_delete_retweets'] == 'on')
             else:
                 common.settings.set('retweets_likes_delete_retweets', False)
-            common.settings.set('retweets_likes_retweets_threshold', int(request.form['retweets_likes_retweets_threshold']))
+            common.settings.set('retweets_likes_retweets_threshold', int(
+                request.form['retweets_likes_retweets_threshold']))
             if 'retweets_likes_delete_likes' in request.form:
-                common.settings.set('retweets_likes_delete_likes', request.form['retweets_likes_delete_likes'] == 'on')
+                common.settings.set('retweets_likes_delete_likes',
+                                    request.form['retweets_likes_delete_likes'] == 'on')
             else:
                 common.settings.set('retweets_likes_delete_likes', False)
-            common.settings.set('retweets_likes_likes_threshold', int(request.form['retweets_likes_likes_threshold']))
+            common.settings.set('retweets_likes_likes_threshold', int(
+                request.form['retweets_likes_likes_threshold']))
 
             common.settings.save()
 
@@ -58,21 +79,37 @@ def create_app(common):
             twitter.calculate_excluded_threads()
 
         return render_template('settings.html',
-            api_key=common.settings.get('api_key'),
-            api_secret=common.settings.get('api_secret'),
-            access_token_key=common.settings.get('access_token_key'),
-            access_token_secret=common.settings.get('access_token_secret'),
-            username=common.settings.get('username'),
-            delete_tweets=common.settings.get('delete_tweets'),
-            tweets_days_threshold=common.settings.get('tweets_days_threshold'),
-            tweets_retweet_threshold=common.settings.get('tweets_retweet_threshold'),
-            tweets_like_threshold=common.settings.get('tweets_like_threshold'),
-            tweets_threads_threshold=common.settings.get('tweets_threads_threshold'),
-            retweets_likes=common.settings.get('retweets_likes'),
-            retweets_likes_delete_retweets=common.settings.get('retweets_likes_delete_retweets'),
-            retweets_likes_retweets_threshold=common.settings.get('retweets_likes_retweets_threshold'),
-            retweets_likes_delete_likes=common.settings.get('retweets_likes_delete_likes'),
-            retweets_likes_likes_threshold=common.settings.get('retweets_likes_likes_threshold'))
+                               api_key=common.settings.get('api_key'),
+                               api_secret=common.settings.get('api_secret'),
+                               access_token_key=common.settings.get(
+                                   'access_token_key'),
+                               access_token_secret=common.settings.get(
+                                   'access_token_secret'),
+                               username=common.settings.get('username'),
+                               delete_tweets=common.settings.get(
+                                   'delete_tweets'),
+                               log_to_file=common.settings.get('logging'),
+                               log_filename=common.settings.get(
+                                   'log_filename'),
+                               log_format=common.settings.get(
+                                   'log_format'),
+                               tweets_days_threshold=common.settings.get(
+                                   'tweets_days_threshold'),
+                               tweets_retweet_threshold=common.settings.get(
+                                   'tweets_retweet_threshold'),
+                               tweets_like_threshold=common.settings.get(
+                                   'tweets_like_threshold'),
+                               tweets_threads_threshold=common.settings.get(
+                                   'tweets_threads_threshold'),
+                               retweets_likes=common.settings.get(
+                                   'retweets_likes'),
+                               retweets_likes_delete_retweets=common.settings.get(
+                                   'retweets_likes_delete_retweets'),
+                               retweets_likes_retweets_threshold=common.settings.get(
+                                   'retweets_likes_retweets_threshold'),
+                               retweets_likes_delete_likes=common.settings.get(
+                                   'retweets_likes_delete_likes'),
+                               retweets_likes_likes_threshold=common.settings.get('retweets_likes_likes_threshold'))
 
     @app.route("/tweets")
     def tweets():
@@ -112,7 +149,8 @@ def create_app(common):
         else:
             exclude_from_delete = False
 
-        tweet = common.session.query(Tweet).filter_by(status_id=status_id).first()
+        tweet = common.session.query(Tweet).filter_by(
+            status_id=status_id).first()
         if not tweet:
             abort(400)
 
